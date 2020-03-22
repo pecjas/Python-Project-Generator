@@ -1,3 +1,4 @@
+from string import Template
 import os
 import json
 import winshell
@@ -23,15 +24,11 @@ def load_project_contents():
 
 def create_directory_contents(directory_name: str, project_params: ProjectParameters):
     full_directory_path = project_params.get_directory_or_default(directory_name)
-    directory_name = replace_app_with_placeholder(directory_name, project_params.app_name)
 
     for _file, contents in PROJECT_CONTENTS.get(directory_name).items():
         _file, contents = clean_data(_file, contents, project_params)
 
         create_file(_file, contents, full_directory_path)
-
-def replace_app_with_placeholder(name: str, app_name: str) -> str:
-    return name.replace(app_name, PLACEHOLDER.get("app"))
 
 def clean_data(_file: str, contents, project_params: ProjectParameters):
     _file = replace_placeholders_in_string(_file, project_params)
@@ -39,37 +36,29 @@ def clean_data(_file: str, contents, project_params: ProjectParameters):
 
     return _file, contents
 
-def replace_placeholders_in_string(name: str, project_params: ProjectParameters) -> str:
-    return name.replace(PLACEHOLDER.get("github"), project_params.user).replace(PLACEHOLDER.get("app"), project_params.app_name)
+def replace_placeholders_in_string(value: str, project_params: ProjectParameters) -> str:
+    template = Template(value)
+    return template.substitute(app_name=project_params.app_name, github_user=project_params.user)
 
 def replace_app_placeholder_in_contents(contents, project_params: ProjectParameters):
     if isinstance(contents, list):
         return [
-            line.replace(
-                PLACEHOLDER.get("app"),
-                project_params.app_name).
-            replace(
-                PLACEHOLDER.get("github"),
-                project_params.user) for line in contents]
+            Template(line).substitute(
+                app_name=project_params.app_name,
+                github_user=project_params.user) for line in contents]
 
     elif isinstance(contents, dict):
         new_contents = dict()
         for key, value in contents.items():
             new_contents.update(
-                {
-                    key.replace(
-                        PLACEHOLDER.get("app"),
-                        project_params.app_name).
-                    replace(
-                        PLACEHOLDER.get("github"),
-                        project_params.user):
+                {Template(key).substitute(
+                    app_name=project_params.app_name,
+                    github_user=project_params.user):
 
-                    value.replace(
-                        PLACEHOLDER.get("app"),
-                        project_params.app_name).
-                    replace(
-                        PLACEHOLDER.get("github"),
-                        project_params.user)})
+                 Template(value).substitute(
+                     app_name=project_params.app_name,
+                     github_user=project_params.user)}
+            )
         return new_contents
 
     else:

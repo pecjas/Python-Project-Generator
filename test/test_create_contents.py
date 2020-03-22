@@ -1,5 +1,5 @@
 import unittest
-from python_project_generator.create_contents import (PLACEHOLDER, replace_app_with_placeholder, replace_placeholders_in_string)
+from python_project_generator.create_contents import PLACEHOLDER, replace_placeholders_in_string
 
 class CreateContentsTests(unittest.TestCase):
     app = "APP"
@@ -46,13 +46,6 @@ class CreateContentsTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_replace_app_with_placeholder(self):
-        for key, value in CreateContentsTests.strings_with_app_populated.items():
-
-            self.assertEqual(
-                replace_app_with_placeholder(value, CreateContentsTests.app),
-                CreateContentsTests.strings_with_app_placeholder.get(key))
-
     def test_replace_placeholders_in_string(self):
         project_params = MockProjectParameters(
             CreateContentsTests.app,
@@ -63,6 +56,13 @@ class CreateContentsTests(unittest.TestCase):
             self.assertEqual(
                 replace_placeholders_in_string(value, project_params),
                 CreateContentsTests.strings_with_mixed_populated.get(key))
+
+        for key, value in CreateContentsTests.strings_with_app_placeholder.items():
+
+            self.assertEqual(
+                replace_placeholders_in_string(value, project_params),
+                CreateContentsTests.strings_with_app_populated.get(key)
+            )
 
 class MockProjectParameters():
     def __init__(self, app: str, user: str):

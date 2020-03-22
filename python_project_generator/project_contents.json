@@ -76,7 +76,7 @@
             "\n",
             "def start_application():\n",
             "    print(\"Hello world\")\n",
-            "    time.sleep(5)"
+            "    time.sleep(5)\n"
         ]
     }
 }
